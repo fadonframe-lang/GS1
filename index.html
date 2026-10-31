@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f6fa">
+  <title>GS1 DataMatrix — офлайн</title>
+  <meta name="application-name" content="GS1 DataMatrix">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="app">
+  <header class="topbar">
+    <div class="brand"><span class="brand-symbol" aria-hidden="true">▦</span><h1>GS1 DataMatrix</h1></div>
+    <span class="offline" title="Все данные обрабатываются на устройстве"><span class="offline-dot"></span>Офлайн</span>
+  </header>
+
+  <section class="entry" aria-label="Ввод кода маркировки">
+    <label class="field-label" for="code">Код маркировки</label>
+    <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="Вставьте код или сканируйте DataMatrix…"></textarea>
+    <div class="toolbar">
+      <button class="tool primary" id="scan-start" type="button" title="Сканировать камерой" aria-label="Сканировать камерой">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V6a2 2 0 0 1 2-2h3M15 4h3a2 2 0 0 1 2 2v3M20 15v3a2 2 0 0 1-2 2h-3M9 20H6a2 2 0 0 1-2-2v-3M7 12h10M9 9v6M15 9v6"/></svg>
+        <span>Скан</span>
+      </button>
+      <button class="tool primary generate" id="generate" type="button" title="Создать DataMatrix" aria-label="Создать DataMatrix">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg>
+        <span>Создать</span>
+      </button>
+      <button class="tool icon-only" id="paste" type="button" title="Вставить из буфера" aria-label="Вставить из буфера">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="16" rx="2"/><path d="M9 5V3h6v2M9 11h6M9 15h6"/></svg>
+      </button>
+      <button class="tool icon-only" id="pick-image" type="button" title="Распознать с фотографии" aria-label="Распознать с фотографии">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9" r="1.5"/><path d="m4 17 5-5 4 4 3-3 4 4"/></svg>
+      </button>
+      <button class="tool icon-only" id="clear" type="button" title="Очистить поле" aria-label="Очистить поле">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 4h4M7 7l1 13h8l1-13M10 11v6M14 11v6"/></svg>
+      </button>
+    </div>
+    <p id="status" class="status" role="status" aria-live="polite" hidden></p>
+    <input id="scan-file" type="file" accept="image/*" hidden>
+  </section>
+
+  <section class="scanner-panel" id="scanner-panel" aria-label="Камера">
+    <div class="video-wrap" id="video-wrap" hidden>
+      <video id="scan-video" autoplay muted playsinline></video>
+      <div class="scan-guide" aria-hidden="true"></div>
+    </div>
+    <div class="camera-controls" id="camera-controls" hidden>
+      <span class="camera-hint">Наведите камеру на код</span>
+      <button class="stop-btn" id="scan-stop" type="button" disabled>Остановить</button>
+    </div>
+    <p id="scan-status" class="status" role="status" aria-live="polite" hidden></p>
+  </section>
+
+  <section class="result" id="result" hidden aria-label="Сгенерированный код">
+    <div class="result-header"><strong>DataMatrix</strong><span>GS1 · ECC200</span></div>
+    <div class="canvaswrap"><canvas id="matrix" aria-label="Штрихкод GS1 DataMatrix"></canvas></div>
+    <div class="result-buttons">
+      <button id="save" class="save-btn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 17v3h14v-3"/></svg>PNG</button>
+      <button id="copyImage" class="copy-btn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>Копировать</button>
+    </div>
+    <details class="details"><summary>Состав кода <span aria-hidden="true">⌄</span></summary><div class="parts" id="parts"></div></details>
+  </section>
+</main>
+<script src="vendor/datamatrix.js"></script>
+<script src="script.js"></script>
+<script src="scanner.js"></script>
+<script src="pwa.js"></script>
+</body>
+</html>
