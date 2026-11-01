@@ -36,10 +36,10 @@ function renderCanvas(targetCanvas,p){
   const lines=getHumanLines(p);
   const ctx=targetCanvas.getContext('2d');
   const width=temp.width;
-  const fontSize=Math.max(18, Math.round(width/22));
-  const lineHeight=Math.round(fontSize*1.25);
-  const textTopPad=Math.round(fontSize*0.55);
-  const textBottomPad=Math.round(fontSize*0.45);
+  const fontSize=Math.max(28, Math.round(width/15));
+  const lineHeight=Math.round(fontSize*1.12);
+  const textTopPad=Math.round(fontSize*0.42);
+  const textBottomPad=Math.round(fontSize*0.30);
   const textBlockHeight=textTopPad + lineHeight*lines.length + textBottomPad;
 
   targetCanvas.width=width;
@@ -50,12 +50,13 @@ function renderCanvas(targetCanvas,p){
   ctx.drawImage(temp,0,0);
 
   ctx.fillStyle='#000000';
-  ctx.textAlign='center';
+  ctx.textAlign='left';
   ctx.textBaseline='top';
-  ctx.font='500 ' + fontSize + 'px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+  ctx.font='600 ' + fontSize + 'px "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
 
+  const textLeftPad=Math.round(width*0.04);
   lines.forEach((line,index)=>{
-    ctx.fillText(line, width/2, temp.height + textTopPad + index*lineHeight);
+    ctx.fillText(line, textLeftPad, temp.height + textTopPad + index*lineHeight);
   });
 }
 
