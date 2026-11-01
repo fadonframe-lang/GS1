@@ -36,7 +36,7 @@ function renderCanvas(targetCanvas,p){
   const lines=getHumanLines(p);
   const ctx=targetCanvas.getContext('2d');
   const width=temp.width;
-  const fontSize=Math.max(30, Math.round(width/13));
+  const fontSize=Math.max(40, Math.round(width/9.5));
   const lineHeight=Math.round(fontSize*1.12);
   const textTopPad=Math.round(fontSize*0.42);
   const textBottomPad=Math.round(fontSize*0.30);
