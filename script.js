@@ -36,7 +36,7 @@ function renderCanvas(targetCanvas,p){
   const lines=getHumanLines(p);
   const ctx=targetCanvas.getContext('2d');
   const width=temp.width;
-  const fontSize=Math.max(28, Math.round(width/15));
+  const fontSize=Math.max(30, Math.round(width/13));
   const lineHeight=Math.round(fontSize*1.12);
   const textTopPad=Math.round(fontSize*0.42);
   const textBottomPad=Math.round(fontSize*0.30);
@@ -52,11 +52,11 @@ function renderCanvas(targetCanvas,p){
   ctx.fillStyle='#000000';
   ctx.textAlign='left';
   ctx.textBaseline='top';
-  ctx.font='600 ' + fontSize + 'px "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+  ctx.font='bold ' + fontSize + 'px "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
 
   const textLeftPad=Math.round(width*0.04);
   lines.forEach((line,index)=>{
-    ctx.fillText(line, textLeftPad, temp.height + textTopPad + index*lineHeight);
+    ctx.fillText(line, textLeftPad, temp.height + textTopPad + index*lineHeight, width-textLeftPad*2);
   });
 }
 
