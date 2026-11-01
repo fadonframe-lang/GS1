@@ -17,7 +17,7 @@ function parse(raw){
   const [all,gtin,serial,key,crypto]=match;
   if(!serial||!key||!crypto)throw Error('Одна из групп 21, 91, 92 пустая.');
   for(const [name,val] of [['21',serial],['91',key],['92',crypto]]){
-    if(/[ --￿]/.test(val))throw Error('В группе '+name+' есть недопустимые символы.');
+    if(/[\x00-\x1f\x7f-\uffff]/.test(val))throw Error('В группе '+name+' есть недопустимые символы.');
   }
   return {gtin,serial,key,crypto,encoded:'01'+gtin+'21'+serial+GS+'91'+key+GS+'92'+crypto};
 }
