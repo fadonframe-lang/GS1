@@ -1,6 +1,6 @@
 /* PWA offline cache: increment CACHE_VERSION for every release. */
 'use strict';
-const CACHE_VERSION = 'gs1-dm-v6-3';
+const CACHE_VERSION = 'gs1-dm-v6-4';
 const APP_FILES = [
   './', './index.html', './style.css', './script.js', './scanner.js',
   './vendor/datamatrix.js', './pwa.js', './manifest.webmanifest',
