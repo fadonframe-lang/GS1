@@ -2,27 +2,65 @@
 const el=id=>document.getElementById(id);
 const input=el('code'),status=el('status'),result=el('result'),canvas=el('matrix');
 function say(message,type=''){status.textContent=message;status.className='status '+type;status.hidden=!message;}
-const GS='\x1D';
+const GS='';
 function parse(raw){
-  let s=raw.trim().replace(/<GS>|\\x1[dD]|\\u001[dD]|\[GS\]/gi,GS);
+  let s=raw.trim().replace(/<GS>|\x1[dD]|\u001[dD]|\[GS\]/gi,GS);
   // Scanner output may begin with a literal ASCII 29 (GS).
   // The encoder itself writes the mandatory initial GS1 FNC1.
-  s=s.replace(/^\x1d+/, '');
+  s=s.replace(/^+/, '');
   // Supports both scanner output with GS, AIs in parentheses, and pasted space-delimited codes.
   let match=s.match(/^\(01\)(\d{14})\(21\)([\s\S]{1,20}?)\(91\)([\s\S]{1,90}?)\(92\)([\s\S]+)$/);
   if(!match){
-    match=s.match(/^01(\d{14})21([\s\S]{1,20}?)(?:\x1d|\s+)91([\s\S]{1,90}?)(?:\x1d|\s+)92([\s\S]+)$/);
+    match=s.match(/^01(\d{14})21([\s\S]{1,20}?)(?:|\s+)91([\s\S]{1,90}?)(?:|\s+)92([\s\S]+)$/);
   }
   if(!match)throw Error('Не удалось распознать структуру. Ожидаются группы 01 (14 цифр), 21, 91 и 92. Между 21/91 и 91/92 должны быть пробелы, GS или скобки вокруг AI.');
   const [all,gtin,serial,key,crypto]=match;
   if(!serial||!key||!crypto)throw Error('Одна из групп 21, 91, 92 пустая.');
   for(const [name,val] of [['21',serial],['91',key],['92',crypto]]){
-    if(/[\x00-\x1f\x7f-\uffff]/.test(val))throw Error('В группе '+name+' есть недопустимые символы.');
+    if(/[ --￿]/.test(val))throw Error('В группе '+name+' есть недопустимые символы.');
   }
   return {gtin,serial,key,crypto,encoded:'01'+gtin+'21'+serial+GS+'91'+key+GS+'92'+crypto};
 }
+
+function getHumanLines(p){
+  return [
+    '(01) ' + p.gtin,
+    '(21) ' + p.serial
+  ];
+}
+
+function renderCanvas(targetCanvas,p){
+  const temp=document.createElement('canvas');
+  OfflineGS1DM.draw(temp,p.encoded,10,2);
+
+  const lines=getHumanLines(p);
+  const ctx=targetCanvas.getContext('2d');
+  const width=temp.width;
+  const fontSize=Math.max(18, Math.round(width/22));
+  const lineHeight=Math.round(fontSize*1.25);
+  const textTopPad=Math.round(fontSize*0.55);
+  const textBottomPad=Math.round(fontSize*0.45);
+  const textBlockHeight=textTopPad + lineHeight*lines.length + textBottomPad;
+
+  targetCanvas.width=width;
+  targetCanvas.height=temp.height + textBlockHeight;
+
+  ctx.fillStyle='#ffffff';
+  ctx.fillRect(0,0,targetCanvas.width,targetCanvas.height);
+  ctx.drawImage(temp,0,0);
+
+  ctx.fillStyle='#000000';
+  ctx.textAlign='center';
+  ctx.textBaseline='top';
+  ctx.font='500 ' + fontSize + 'px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+
+  lines.forEach((line,index)=>{
+    ctx.fillText(line, width/2, temp.height + textTopPad + index*lineHeight);
+  });
+}
+
 let last=null;
-function generate(){try{const p=parse(input.value);OfflineGS1DM.draw(canvas,p.encoded,10,2);last=p;result.hidden=false;
+function generate(){try{const p=parse(input.value);renderCanvas(canvas,p);last=p;result.hidden=false;
   el('parts').replaceChildren(...[['01 · GTIN',p.gtin],['21 · Серийный номер',p.serial],['91 · Ключ проверки',p.key],['92 · Код проверки',p.crypto]].map(([k,v])=>{let div=document.createElement('div');div.className='part';let b=document.createElement('b');b.textContent=k;div.append(b,document.createTextNode(v));return div;}));
   say('','ok');
  }catch(e){last=null;result.hidden=true;say(e.message||String(e),'error');}}
