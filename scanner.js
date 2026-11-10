@@ -1,4 +1,4 @@
-/* GS1 scanner v6.7: local ZXing-C++ WASM + native BarcodeDetector fallback. */
+/* GS1 scanner v6.9: independently selectable BarcodeDetector and ZXing WASM. */
 'use strict';
 (() => {
   const $ = id => document.getElementById(id);
@@ -7,6 +7,7 @@
   const status = $('scan-status');
   const controls = $('camera-controls');
   const start = $('scan-start');
+  const startZ = $('scan-zxing');
   const stop = $('scan-stop');
   const picker = $('pick-image');
   const fileInput = $('scan-file');
@@ -15,6 +16,7 @@
   let detector = null, stream = null, running = false, rafId = 0;
   let busy = false, lastNative = 0, lastWasm = 0, zxingReady = false;
   let zxingBroken = false, nativeBroken = false, generation = 0;
+  let scanMode = null;
 
   function say(msg, err = false) {
     status.textContent = msg;
@@ -74,6 +76,7 @@
     wrap.hidden = true;
     controls.hidden = true;
     start.disabled = false;
+    startZ.disabled = false;
     stop.disabled = true;
   }
 
@@ -145,28 +148,34 @@
 
   async function scanFrame(timestamp) {
     if (!running || busy || video.readyState < 2) return;
-    const doNative = timestamp - lastNative >= 220;
-    const doWasm = timestamp - lastWasm >= 850;
-    if (!doNative && !doWasm) return;
+    const period = scanMode === 'zxing' ? 650 : 220;
+    const last = scanMode === 'zxing' ? lastWasm : lastNative;
+    if (timestamp - last < period) return;
     busy = true;
     const myGeneration = generation;
     try {
       let value = '';
-      if (doNative && detector && !nativeBroken) {
+      if (scanMode === 'native') {
         lastNative = timestamp;
         try { value = firstNative(await detector.detect(video)); }
-        catch (e) { nativeBroken = true; console.warn('Native scan failed:', e); }
-      }
-      if (value && running && myGeneration === generation) { decoded(value, 'BarcodeDetector'); return; }
-      if (doWasm && !zxingBroken && running && myGeneration === generation) {
+        catch (e) {
+          nativeBroken = true;
+          if (running && myGeneration === generation) {
+            closeCamera();
+            say('BarcodeDetector: ошибка распознавания. Попробуйте Z.', true);
+          }
+          return;
+        }
+        if (value && running && myGeneration === generation) decoded(value, 'BarcodeDetector');
+      } else if (scanMode === 'zxing') {
         lastWasm = timestamp;
         const frame = captureFrame();
         if (frame) value = await detectWasm(frame);
         if (value && running && myGeneration === generation) decoded(value, 'ZXing WASM');
-      }
-      if (nativeBroken && zxingBroken && running) {
-        closeCamera();
-        say('Оба движка сканирования недоступны. Попробуйте фотографию.', true);
+        else if (zxingBroken && running && myGeneration === generation) {
+          closeCamera();
+          say('ZXing недоступен. Попробуйте B.', true);
+        }
       }
     } finally {
       busy = false;
@@ -182,17 +191,21 @@
     });
   }
 
-  start.addEventListener('click', async () => {
-    if (running) return;
+  async function startCamera(mode) {
+    if (running || start.disabled || startZ.disabled) return;
     start.disabled = true;
-    say('Подготовка сканера…');
+    startZ.disabled = true;
+    scanMode = mode;
+    say(mode === 'zxing' ? 'Подготовка ZXing…' : 'Подготовка BarcodeDetector…');
     try {
       if (!navigator.mediaDevices?.getUserMedia)
         throw new Error('Камера требует HTTPS или localhost.');
-      const d = await nativeDetector();
-      const z = await wasmDecoder();
-      if (!d && !z) throw new Error('На этом устройстве нет доступного движка DataMatrix.');
-      say('Запрашиваю доступ к камере…');
+      if (mode === 'native') {
+        if (!await nativeDetector()) throw new Error('BarcodeDetector недоступен. Попробуйте Z.');
+      } else if (!await wasmDecoder()) {
+        throw new Error('ZXing WASM недоступен. Попробуйте B.');
+      }
+      say('Запрашиваю доступ к задней камере…');
       stream = await navigator.mediaDevices.getUserMedia({
         audio: false, video: {
           facingMode: {ideal: 'environment'},
@@ -215,7 +228,10 @@
         ? 'Доступ к камере запрещён. Разрешите камеру для сайта.'
         : (e.message || String(e)), true);
     }
-  });
+  }
+
+  start.addEventListener('click', () => startCamera('native'));
+  startZ.addEventListener('click', () => startCamera('zxing'));
 
   stop.addEventListener('click', () => { closeCamera(); say(''); });
   picker.addEventListener('click', () => fileInput.click());
