@@ -4,7 +4,7 @@ on:
     branches:
       - feature/version-scan-engine-v68
     paths:
-      - .github/workflows/test-zxing.yml
+      - .github/workflows/test-v68.yml
       - tests/**
       - scanner.js
       - index.html
