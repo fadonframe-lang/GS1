@@ -61,12 +61,12 @@ function renderCanvas(targetCanvas,p){
 }
 
 let last=null;
-function generate(){try{const p=parse(input.value);renderCanvas(canvas,p);last=p;result.hidden=false;
+function generate(){const label=el('scan-engine');label.textContent='';label.hidden=true;try{const p=parse(input.value);renderCanvas(canvas,p);last=p;result.hidden=false;
   el('parts').replaceChildren(...[['01 · GTIN',p.gtin],['21 · Серийный номер',p.serial],['91 · Ключ проверки',p.key],['92 · Код проверки',p.crypto]].map(([k,v])=>{let div=document.createElement('div');div.className='part';let b=document.createElement('b');b.textContent=k;div.append(b,document.createTextNode(v));return div;}));
   say('','ok');
  }catch(e){last=null;result.hidden=true;say(e.message||String(e),'error');}}
 el('generate').addEventListener('click',generate);
-el('clear').addEventListener('click',()=>{input.value='';result.hidden=true;last=null;say('');input.focus();});
+el('clear').addEventListener('click',()=>{input.value='';result.hidden=true;last=null;el('scan-engine').hidden=true;say('');input.focus();});
 el('paste').addEventListener('click',async()=>{try{input.value=await navigator.clipboard.readText();generate();}catch(e){say('Автовставка недоступна из локального файла. Используйте долгое нажатие → «Вставить».','error');input.focus();}});
 el('save').addEventListener('click',()=>{if(!last)return;const link=document.createElement('a');link.href=canvas.toDataURL('image/png');link.download='gs1-datamatrix-'+last.gtin+'.png';document.body.appendChild(link);link.click();link.remove();});
 el('copyImage').addEventListener('click',async()=>{if(!last)return;try{const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!blob)throw Error('PNG недоступен');await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);say('Изображение скопировано.','ok');}catch(e){say('Копирование картинки из локального файла может быть запрещено браузером. Используйте «Скачать PNG».','error');}});
