@@ -1,0 +1,37 @@
+name: Vendor ZXing WASM for experimental scanner
+on:
+  push:
+    branches:
+      - experiment/zxing-wasm-v67
+    paths:
+      - .github/workflows/vendor-zxing.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned ZXing WASM locally
+        run: |
+          npm install --prefix "${RUNNER_TEMP}/gs1-zxing" zxing-wasm@3.1.6 --no-save --no-audit --no-fund
+          mkdir -p vendor/zxing
+          cp "${RUNNER_TEMP}/gs1-zxing/node_modules/zxing-wasm/dist/iife/reader/index.js" vendor/zxing/reader.js
+          cp "${RUNNER_TEMP}/gs1-zxing/node_modules/zxing-wasm/dist/reader/zxing_reader.wasm" vendor/zxing/zxing_reader.wasm
+          cp "${RUNNER_TEMP}/gs1-zxing/node_modules/zxing-wasm/LICENSE" vendor/zxing/LICENSE
+          ls -lah vendor/zxing
+      - name: Commit self-hosted decoder dependencies
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add vendor/zxing
+          if ! git diff --cached --quiet; then
+            git commit -m "vendor: pin ZXing WASM 3.1.6 offline decoder"
+            git push
+          fi
