@@ -1,9 +1,10 @@
 /* PWA offline cache: increment CACHE_VERSION for every release. */
 'use strict';
-const CACHE_VERSION = 'gs1-dm-v6-6';
+const CACHE_VERSION = 'gs1-dm-v6-7';
 const APP_FILES = [
   './', './index.html', './style.css', './script.js', './scanner.js',
-  './vendor/datamatrix.js', './pwa.js', './manifest.webmanifest',
+  './vendor/datamatrix.js', './vendor/zxing/reader.js',
+  './vendor/zxing/zxing_reader.wasm', './pwa.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'
 ];
 self.addEventListener('install', event => {
