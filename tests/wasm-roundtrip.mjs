@@ -24,12 +24,15 @@ try {
     const ctx=cv.getContext('2d');
     const image=ctx.getImageData(0,0,cv.width,cv.height);
     const read=await z.readBarcodes(image,{formats:['DataMatrix'],tryHarder:true,tryRotate:true,tryInvert:true,maxNumberOfSymbols:1});
-    return {input:code,decoded:read.map(r=>({format:r.format,text:r.text,symbologyIdentifier:r.symbologyIdentifier})), canvasSize:[canvas.width,canvas.height]};
+    return {input:code,decoded:read.map(r=>({format:r.format,text:r.text,bytes:Array.from(r.bytes||[]),symbologyIdentifier:r.symbologyIdentifier})), canvasSize:[canvas.width,canvas.height]};
   });
   console.log(result);
   assert.ok(result.decoded.length>0,'No DataMatrix decoded');
   assert.equal(result.decoded[0].format,'DataMatrix');
-  const value=result.decoded[0].text.replace(/^\]d2/,'').replace(/^\x1d/,'');
-  assert.equal(value,result.input,'GS1 payload did not roundtrip');
+  const payload=result.decoded[0].bytes.map(n=>String.fromCharCode(n)).join('');
+  const value=payload || result.decoded[0].text;
+  const normalized=value.startsWith(']d2')?value.slice(3):value;
+  const parsed=await page.evaluate(text=>parse(text).encoded,normalized);
+  assert.equal(parsed,result.input,'GS1 payload did not roundtrip');
   console.log('PASS: offline ZXing decoder roundtrip on app-generated GS1 DataMatrix');
 } finally {await browser.close();}
