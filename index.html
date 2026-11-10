@@ -16,7 +16,7 @@
 <body>
 <main class="app">
   <header class="topbar">
-    <div class="brand"><span class="brand-symbol" aria-hidden="true">▦</span><h1>GS1 DataMatrix</h1></div>
+    <div class="brand"><span class="brand-symbol" aria-hidden="true">▦</span><h1>GS1 DataMatrix</h1><span class="app-version">v6.8</span></div>
     <span class="offline" title="Все данные обрабатываются на устройстве"><span class="offline-dot"></span>Офлайн</span>
   </header>
 
@@ -59,7 +59,7 @@
   </section>
 
   <section class="result" id="result" hidden aria-label="Сгенерированный код">
-    <div class="result-header"><strong>DataMatrix</strong><span>GS1 · ECC200</span></div>
+    <div class="result-header"><strong>DataMatrix</strong><div class="result-meta"><span>GS1 · ECC200</span><span id="scan-engine" class="scan-engine" hidden></span></div></div>
     <div class="canvaswrap"><canvas id="matrix" aria-label="Штрихкод GS1 DataMatrix"></canvas></div>
     <div class="result-buttons">
       <button id="save" class="save-btn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 17v3h14v-3"/></svg>PNG</button>

@@ -77,7 +77,7 @@
     stop.disabled = true;
   }
 
-  function decoded(value) {
+  function decoded(value, engine) {
     if (!value) return false;
     // GS1 symbology prefix ]d2 may be returned by some decoders.
     const normalized = value.startsWith(']d2') ? value.slice(3) : value;
@@ -85,8 +85,11 @@
     $('code').value = normalized;
     $('generate').click();
     if ($('result').hidden) {
-      say('DataMatrix считан, но структура отличается от 01/21/91/92. Исходный текст сохранён.', true);
+      say('Считано через ' + engine + ', но структура отличается от 01/21/91/92. Исходный текст сохранён.', true);
     } else {
+      const label = $('scan-engine');
+      label.textContent = 'Скан: ' + engine;
+      label.hidden = false;
       say('');
     }
     if (navigator.vibrate) navigator.vibrate(100);
@@ -154,12 +157,12 @@
         try { value = firstNative(await detector.detect(video)); }
         catch (e) { nativeBroken = true; console.warn('Native scan failed:', e); }
       }
-      if (value && running && myGeneration === generation) { decoded(value); return; }
+      if (value && running && myGeneration === generation) { decoded(value, 'BarcodeDetector'); return; }
       if (doWasm && !zxingBroken && running && myGeneration === generation) {
         lastWasm = timestamp;
         const frame = captureFrame();
         if (frame) value = await detectWasm(frame);
-        if (value && running && myGeneration === generation) decoded(value);
+        if (value && running && myGeneration === generation) decoded(value, 'ZXing WASM');
       }
       if (nativeBroken && zxingBroken && running) {
         closeCamera();
@@ -225,6 +228,7 @@
     let bitmap;
     try {
       let value = await detectWasm(file);
+      let engine = value ? 'ZXing WASM' : 'BarcodeDetector';
       if (!value) {
         const d = await nativeDetector();
         if (d) {
@@ -233,7 +237,7 @@
         }
       }
       if (!value) throw new Error('DataMatrix на изображении не найден. Уберите блики или приблизьте код.');
-      decoded(value);
+      decoded(value, engine);
     } catch (e) {
       say('Не удалось распознать: ' + (e.message || e), true);
     } finally {
