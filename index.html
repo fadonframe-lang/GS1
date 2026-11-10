@@ -16,7 +16,7 @@
 <body>
 <main class="app">
   <header class="topbar">
-    <div class="brand"><span class="brand-symbol" aria-hidden="true">▦</span><h1>GS1 DataMatrix</h1><span class="app-version">v6.8</span></div>
+    <div class="brand"><span class="brand-symbol" aria-hidden="true">▦</span><h1>GS1 DataMatrix</h1><span class="app-version">v6.9</span></div>
     <span class="offline" title="Все данные обрабатываются на устройстве"><span class="offline-dot"></span>Офлайн</span>
   </header>
 
@@ -24,13 +24,16 @@
     <label class="field-label" for="code">Код маркировки</label>
     <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="Вставьте код или сканируйте DataMatrix…"></textarea>
     <div class="toolbar">
-      <button class="tool primary" id="scan-start" type="button" title="Сканировать камерой" aria-label="Сканировать камерой">
+      <button class="tool primary" id="scan-start" type="button" title="Сканировать через BarcodeDetector" aria-label="Сканировать через BarcodeDetector">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V6a2 2 0 0 1 2-2h3M15 4h3a2 2 0 0 1 2 2v3M20 15v3a2 2 0 0 1-2 2h-3M9 20H6a2 2 0 0 1-2-2v-3M7 12h10M9 9v6M15 9v6"/></svg>
-        <span>Скан</span>
+        <span>B</span>
       </button>
-      <button class="tool primary generate" id="generate" type="button" title="Создать DataMatrix" aria-label="Создать DataMatrix">
+      <button class="tool primary" id="scan-zxing" type="button" title="Сканировать через ZXing WASM" aria-label="Сканировать через ZXing WASM">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V6a2 2 0 0 1 2-2h3M15 4h3a2 2 0 0 1 2 2v3M20 15v3a2 2 0 0 1-2 2h-3M9 20H6a2 2 0 0 1-2-2v-3M7 12h10M9 9v6M15 9v6"/></svg>
+        <span>Z</span>
+      </button>
+      <button class="tool primary generate icon-only" id="generate" type="button" title="Создать DataMatrix" aria-label="Создать DataMatrix">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z"/></svg>
-        <span>Создать</span>
       </button>
       <button class="tool icon-only" id="paste" type="button" title="Вставить из буфера" aria-label="Вставить из буфера">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="14" height="16" rx="2"/><path d="M9 5V3h6v2M9 11h6M9 15h6"/></svg>
