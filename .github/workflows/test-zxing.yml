@@ -5,6 +5,10 @@ on:
       - experiment/zxing-wasm-v67
     paths:
       - .github/workflows/test-zxing.yml
+      - tests/**
+      - scanner.js
+      - index.html
+      - service-worker.js
   workflow_dispatch:
 permissions:
   contents: read
