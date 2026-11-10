@@ -1,0 +1,33 @@
+name: Test experimental GS1 WASM
+on:
+  push:
+    branches:
+      - experiment/zxing-wasm-v67
+    paths:
+      - .github/workflows/test-zxing.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install headless Chromium for Playwright
+        run: |
+          npm install playwright@1.58.2 --no-save --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Check JS syntax
+        run: |
+          node --check script.js
+          node --check scanner.js
+          node --check service-worker.js
+          node --check vendor/zxing/reader.js
+      - name: Run browser test
+        run: |
+          python3 -m http.server 8000 --bind 127.0.0.1 >/tmp/gs1-http.log 2>&1 &
+          sleep 2
+          node tests/wasm-roundtrip.mjs
