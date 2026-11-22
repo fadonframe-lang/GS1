@@ -38,9 +38,10 @@ self.addEventListener('fetch', event => {
       fetch(request, { cache: 'no-store' }).then(response => {
         if (response.ok && response.type === 'basic') {
           const copy = response.clone();
-          event.waitUntil(caches.open(CACHE_VERSION)
+          return caches.open(CACHE_VERSION)
             .then(cache => cache.put('./index.html', copy))
-            .catch(() => {}));
+            .catch(() => {})
+            .then(() => response);
         }
         return response;
       }).catch(async () => {
@@ -57,9 +58,9 @@ self.addEventListener('fetch', event => {
       fetch(request).then(response => {
         if (response.ok && response.type === 'basic') {
           const copy = response.clone();
-          event.waitUntil(caches.open(CACHE_VERSION)
+          caches.open(CACHE_VERSION)
             .then(cache => cache.put(request, copy))
-            .catch(() => {}));
+            .catch(() => {});
         }
         return response;
       })
